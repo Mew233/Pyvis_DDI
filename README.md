@@ -1,17 +1,12 @@
-# Deploy Interactive Pyvis Network Graphs on Streamlit
+# Interactive Pyvis Network Graphs for DDI on Streamlit
 
-Link to app: https://share.streamlit.io/kennethleungty/pyvis-network-graph-streamlit/main/pyvis_network_app.py  
-Link to article: https://towardsdatascience.com/how-to-deploy-interactive-pyvis-network-graphs-on-streamlit-6c401d4c99db
-
-![demo-gif](https://github.com/kennethleungty/Pyvis-Network-Graph-Streamlit/blob/main/demo/demo_gif_sm.gif)
 
 ### Step 1
 - Install Streamlit, Pyvis and NetworkX packages (See `requirements.txt`)
 
-### Step 2
-- Open CLI and change directory to local path of this repo e.g. `cd 'C:/GitHub/Pyvis-Network-Graph-Streamlit'`
 
-### Step 3
-- In CLI, execute `streamlit run pyvis_network_app.py`
+### Step 2
+- Online: https://mew233-pyvis-ddi-pyvis-network-app-rd71wr.streamlit.app/
+- Local excution: `streamlit run pyvis_network_app.py`
 
 
