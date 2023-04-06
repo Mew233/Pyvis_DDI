@@ -86,6 +86,9 @@ else:
         elif servere == 'Minor':
             val = 1
             clr = '#288BA8'
+        else:
+            val = 1
+            clr = '#288BA8'
         got_net.add_edge(src_1, src_2, color=clr,value = val)
 
         got_net.add_edge(src_1, rel, color='#CDCDCD')
