@@ -4,20 +4,38 @@ import pandas as pd
 import networkx as nx
 from pyvis.network import Network
 import numpy as np
+from utilitis import *
 
 # Read dataset (CSV)
 # df_interact = pd.read_csv('data/processed_drug_interactions.csv')
-single_drug_adr = pd.read_csv('data/Single_drug_adr.csv',index_col=0)
-ddi = pd.read_csv('data/drug_drug.csv',index_col=0)
-dpi = pd.read_csv('data/drug_gene.csv')
-ppi = pd.read_csv('data/gene_gene.csv')
+@st.experimental_memo
+def load_data():
+    single_drug_adr = pd.read_csv('data/Single_drug_adr.csv',index_col=0)
+    ddi = pd.read_csv('data/drug_drug.csv',index_col=0)
+    dpi = pd.read_csv('data/drug_gene_all.csv')
+    expert = pd.read_csv('data/expert_list.csv',index_col=0)
+    ppi = pd.read_csv('data/gene_gene.csv')
+
+    ncbi2name = pd.read_csv("data/ncbi2name.txt",sep='\t')
+    expert = pd.merge(expert, ncbi2name, left_on=['NCBI_ID'], right_on=['NCBI Gene ID(supplied by NCBI)'])
+    expert2 = expert[['NCBI_ID','Drug IDs','Drug IDs','Drug IDs','Approved symbol']]
+    expert2.columns = dpi.columns
+    dpi_L = pd.concat([dpi,expert2])
+    dpi_L = dpi_L.drop_duplicates(subset=['NCBI_ID','DrugBank ID_split'])
+    dpi_L = dpi_L[['drug_node_name','Gene Name']]
+
+    return single_drug_adr, ddi, dpi_L, ppi
+
+single_drug_adr, ddi, dpi, ppi = load_data()
+
 
 # Set header title
 st.title('Network Graph Visualization of Drug-Drug Interactions')
 
 # Define list of selection options and sort alphabetically
-drug_list = list(np.unique(single_drug_adr['source']))
-drug_list.sort()
+drug_list = list(np.unique(single_drug_adr['source'])) + list(set(dpi['drug_node_name'])-\
+                                                                      set(single_drug_adr['source']).intersection(set(dpi['drug_node_name'])))
+# drug_list.sort()
 
 # Implement multiselect dropdown menu for option selection (returns a list)
 selected_drugs = st.multiselect('Select drug(s) to visualize', drug_list)
@@ -55,58 +73,23 @@ else:
 
     # set the physics layout of the network
     got_net.barnes_hut()
+    
+    #有些drug没有side effect的信息
+    if len(df_select)>0 and len(ddi_select)>0:
+        add_drug_side(df_select,got_net)
+        add_drug_drugddi_select(ddi_select,got_net)
 
-    # create graph using pviz network 
-    edge_data = zip(df_select['source'], df_select['target'], df_select['rel'])
-
-    for src, dst, rel in edge_data:
-        #add nodes and edges to the graph
-        got_net.add_node(src, src, title=src, color='#6BAEA9', shape='triangle',labelHighlightBold=True)
-
-        got_net.add_node(dst, dst, title=dst, color='#F08327', shape='dot')
-
-        got_net.add_edge(src, dst, color='#CDCDCD')
-
-    # ddi
-    ddi_edge_data = zip(ddi_select['DRUG_1_CONCEPT_NAME'], ddi_select['DRUG_2_CONCEPT_NAME'], ddi_select['EVENT_CONCEPT_NAME'],\
-                        ddi_select['MICROMEDEX_SEV_LEVEL'])
-
-    for src_1, src_2, rel, servere in ddi_edge_data:
-        got_net.add_node(src_1, src_1, title=src_1, color='#6BAEA9', shape='triangle',labelHighlightBold=True)
-        got_net.add_node(src_2, src_2, title=src_2, color='#6BAEA9', shape='triangle',labelHighlightBold=True)
-        got_net.add_node(rel, rel, title=rel, color='#CDCDCD', shape='dot')
-        
-        #{'Contraindicated', 'Major', 'Minor', 'Moderate'}
-        if servere == 'Major':
-            val = 1.4
-            clr = '#746AB0'
-        elif servere == 'Moderate':
-            val = 1.4
-            clr = '#D7AA73'
-        elif servere == 'Minor':
-            val = 1
-            clr = '#288BA8'
-        else:
-            val = 1
-            clr = '#288BA8'
-        got_net.add_edge(src_1, src_2, color=clr,value = val)
-
-        got_net.add_edge(src_1, rel, color='#CDCDCD')
-        got_net.add_edge(src_2, rel, color='#CDCDCD')
-        
     #dpi
     dpi_edge_data = zip(dpi_select['drug_node_name'], dpi_select['Gene Name'])
 
-    for src, dst in dpi_edge_data:
+    for src, dst in dpi_edge_data: #gene_name, 
         #add nodes and edges to the graph
-        got_net.add_node(src, src, title=src, color='#6BAEA9', shape='triangle',labelHighlightBold=True)
-
-        got_net.add_node(dst, dst, title=dst, color='#A0AA9B', shape='star')
+        #drug
+        got_net.add_node(src, title=src, color='#6BAEA9', shape='triangle',labelHighlightBold=True)
+        #protein
+        got_net.add_node(dst, title=dst, color='#A0AA9B', shape='star')
 
         got_net.add_edge(src, dst, color='#CDCDCD')
-
-
-    # G = nx.from_pandas_edgelist(df_select, 'DRUG_CONCEPT_NAME', 'EVENT_CONCEPT_NAME', 'EVENT_TYPE')
 
 
     # Generate network with specific layout settings
@@ -121,7 +104,6 @@ else:
 
 
     
-
     # Save and read graph as HTML file (on Streamlit Sharing)
     try:
         path = '/tmp'
@@ -142,6 +124,9 @@ else:
     genre = st.radio("Meta path exploration (please select 2 drugs)",('Genes','Side effects',))
     genre_hop = st.radio("PPI: ",('shortest path', '2-hop'),horizontal=True)
 
+    agree = st.checkbox('Show PPI network',value=True)
+    
+
     if len(selected_drugs) >= 2:
         if genre == 'Side effects':
             # st.write('You selected comedy.')
@@ -152,20 +137,30 @@ else:
             dpi_select.columns = ['source','target']
             L = pd.concat([dpi_select,ppi_select])
             G = nx.from_pandas_edgelist(L, 'source', 'target')
+            path_1 = nx.all_shortest_paths(G, source=selected_drugs[0], target=selected_drugs[1])
+            path_2 = nx.all_simple_paths(G, source=selected_drugs[0], target=selected_drugs[1],cutoff=3)
             if genre_hop == 'shortest path':
-                paths = nx.all_shortest_paths(G, source=selected_drugs[0], target=selected_drugs[1])
+                paths = path_1
             elif genre_hop == '2-hop':
-                paths = nx.all_simple_paths(G, source=selected_drugs[0], target=selected_drugs[1],cutoff=3)
+                paths = path_2
 
         ps = [p for p in paths]
+        ps = sorted(ps, key=len, reverse=True)
+
         st.experimental_set_query_params(my_saved_result=ps)  # Save value
         # Retrieve app state
         app_state = st.experimental_get_query_params()  
 
-        saved_result = app_state["my_saved_result"]
-        # print([p for p in saved_result])
-        # print(len(saved_result))
-        st.write(saved_result)
+        try:
+            saved_result = app_state["my_saved_result"]
+            # print([p for p in saved_result])
+            # print(len(saved_result))
+            st.write(saved_result)
+        except:
+            raise ValueError('There is no 2-hop genes between selected drugs.')
+
+        if agree:
+            create_ggi(dpi_select, G,selected_drugs)
 
 
 # Footer
