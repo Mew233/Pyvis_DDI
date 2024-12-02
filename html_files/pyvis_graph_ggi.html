@@ -1,0 +1,171 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script src="lib/bindings/utils.js"></script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 750px;
+                 background-color: #222222;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+
+             
+
+             
+        </style>
+    </head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"color": "#6BAEA9", "font": {"color": "white"}, "id": "acebutolol", "label": "acebutolol", "labelHighlightBold": true, "shape": "triangle", "title": "acebutolol"}, {"color": "#6BAEA9", "font": {"color": "white"}, "id": "acenocoumarol", "label": "acenocoumarol", "labelHighlightBold": true, "shape": "triangle", "title": "acenocoumarol"}, {"color": "#0087bd", "font": {"color": "white"}, "id": "ALB", "label": "ALB", "shape": "star", "title": "ALB"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "MAPK14", "label": "MAPK14", "shape": "star", "title": "MAPK14"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "KCNH2", "label": "KCNH2", "shape": "star", "title": "KCNH2"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "PRKCA", "label": "PRKCA", "shape": "star", "title": "PRKCA"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "EGFR", "label": "EGFR", "shape": "star", "title": "EGFR"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "CYP2C19", "label": "CYP2C19", "shape": "star", "title": "CYP2C19"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "CYP2C9", "label": "CYP2C9", "shape": "star", "title": "CYP2C9"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "CYP2D6", "label": "CYP2D6", "shape": "star", "title": "CYP2D6"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "CYP3A4", "label": "CYP3A4", "shape": "star", "title": "CYP3A4"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "CYP1A2", "label": "CYP1A2", "shape": "star", "title": "CYP1A2"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "ABCB1", "label": "ABCB1", "shape": "star", "title": "ABCB1"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "AVPR1A", "label": "AVPR1A", "shape": "star", "title": "AVPR1A"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "CYSLTR1", "label": "CYSLTR1", "shape": "star", "title": "CYSLTR1"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "SIGMAR1", "label": "SIGMAR1", "shape": "star", "title": "SIGMAR1"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "ESR2", "label": "ESR2", "shape": "star", "title": "ESR2"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "PPP3CA", "label": "PPP3CA", "shape": "star", "title": "PPP3CA"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "SLC6A3", "label": "SLC6A3", "shape": "star", "title": "SLC6A3"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "CCR5", "label": "CCR5", "shape": "star", "title": "CCR5"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "CCR4", "label": "CCR4", "shape": "star", "title": "CCR4"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "HTR6", "label": "HTR6", "shape": "star", "title": "HTR6"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "AGTR2", "label": "AGTR2", "shape": "star", "title": "AGTR2"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "NPY2R", "label": "NPY2R", "shape": "star", "title": "NPY2R"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "MC3R", "label": "MC3R", "shape": "star", "title": "MC3R"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "CCR2", "label": "CCR2", "shape": "star", "title": "CCR2"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "HTR2B", "label": "HTR2B", "shape": "star", "title": "HTR2B"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "OPRK1", "label": "OPRK1", "shape": "star", "title": "OPRK1"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "OPRD1", "label": "OPRD1", "shape": "star", "title": "OPRD1"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "DRD3", "label": "DRD3", "shape": "star", "title": "DRD3"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "OPRM1", "label": "OPRM1", "shape": "star", "title": "OPRM1"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "HRH1", "label": "HRH1", "shape": "star", "title": "HRH1"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "PTGS2", "label": "PTGS2", "shape": "star", "title": "PTGS2"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "MC5R", "label": "MC5R", "shape": "star", "title": "MC5R"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "MC4R", "label": "MC4R", "shape": "star", "title": "MC4R"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "VIPR1", "label": "VIPR1", "shape": "star", "title": "VIPR1"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "CCKAR", "label": "CCKAR", "shape": "star", "title": "CCKAR"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "SLC6A4", "label": "SLC6A4", "shape": "star", "title": "SLC6A4"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "CALCR", "label": "CALCR", "shape": "star", "title": "CALCR"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "ADORA1", "label": "ADORA1", "shape": "star", "title": "ADORA1"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "BDKRB2", "label": "BDKRB2", "shape": "star", "title": "BDKRB2"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "CASP1", "label": "CASP1", "shape": "star", "title": "CASP1"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "MAPK1", "label": "MAPK1", "shape": "star", "title": "MAPK1"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "HTR2C", "label": "HTR2C", "shape": "star", "title": "HTR2C"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "HTR2A", "label": "HTR2A", "shape": "star", "title": "HTR2A"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "MAPK3", "label": "MAPK3", "shape": "star", "title": "MAPK3"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "NPY1R", "label": "NPY1R", "shape": "star", "title": "NPY1R"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "PTAFR", "label": "PTAFR", "shape": "star", "title": "PTAFR"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "TACR1", "label": "TACR1", "shape": "star", "title": "TACR1"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "EDNRA", "label": "EDNRA", "shape": "star", "title": "EDNRA"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "ADRA1D", "label": "ADRA1D", "shape": "star", "title": "ADRA1D"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "CXCR2", "label": "CXCR2", "shape": "star", "title": "CXCR2"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "CXCR1", "label": "CXCR1", "shape": "star", "title": "CXCR1"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "HRH2", "label": "HRH2", "shape": "star", "title": "HRH2"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "TBXAS1", "label": "TBXAS1", "shape": "star", "title": "TBXAS1"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "SLC6A2", "label": "SLC6A2", "shape": "star", "title": "SLC6A2"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "PTGS1", "label": "PTGS1", "shape": "star", "title": "PTGS1"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "ACHE", "label": "ACHE", "shape": "star", "title": "ACHE"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "DRD4", "label": "DRD4", "shape": "star", "title": "DRD4"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "DRD1", "label": "DRD1", "shape": "star", "title": "DRD1"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "CNR1", "label": "CNR1", "shape": "star", "title": "CNR1"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "TACR2", "label": "TACR2", "shape": "star", "title": "TACR2"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "MAOA", "label": "MAOA", "shape": "star", "title": "MAOA"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "CHRM3", "label": "CHRM3", "shape": "star", "title": "CHRM3"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "ADRA2C", "label": "ADRA2C", "shape": "star", "title": "ADRA2C"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "ADRA2B", "label": "ADRA2B", "shape": "star", "title": "ADRA2B"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "FLT1", "label": "FLT1", "shape": "star", "title": "FLT1"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "MMP9", "label": "MMP9", "shape": "star", "title": "MMP9"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "DRD2", "label": "DRD2", "shape": "star", "title": "DRD2"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "ADRB3", "label": "ADRB3", "shape": "star", "title": "ADRB3"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "CYP2A6", "label": "CYP2A6", "shape": "star", "title": "CYP2A6"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "CHRM1", "label": "CHRM1", "shape": "star", "title": "CHRM1"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "ADORA3", "label": "ADORA3", "shape": "star", "title": "ADORA3"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "ADRA2A", "label": "ADRA2A", "shape": "star", "title": "ADRA2A"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "CHRM5", "label": "CHRM5", "shape": "star", "title": "CHRM5"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "ADRB1", "label": "ADRB1", "shape": "star", "title": "ADRB1"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "PTPRC", "label": "PTPRC", "shape": "star", "title": "PTPRC"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "CTSG", "label": "CTSG", "shape": "star", "title": "CTSG"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "ELANE", "label": "ELANE", "shape": "star", "title": "ELANE"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "CHRM4", "label": "CHRM4", "shape": "star", "title": "CHRM4"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "CHRM2", "label": "CHRM2", "shape": "star", "title": "CHRM2"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "ADRB2", "label": "ADRB2", "shape": "star", "title": "ADRB2"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "FYN", "label": "FYN", "shape": "star", "title": "FYN"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "LCK", "label": "LCK", "shape": "star", "title": "LCK"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "CYP2E1", "label": "CYP2E1", "shape": "star", "title": "CYP2E1"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "ERBB2", "label": "ERBB2", "shape": "star", "title": "ERBB2"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "NR3C1", "label": "NR3C1", "shape": "star", "title": "NR3C1"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "HMGCR", "label": "HMGCR", "shape": "star", "title": "HMGCR"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "MMP1", "label": "MMP1", "shape": "star", "title": "MMP1"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "ESR1", "label": "ESR1", "shape": "star", "title": "ESR1"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "CA2", "label": "CA2", "shape": "star", "title": "CA2"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "PDE5A", "label": "PDE5A", "shape": "star", "title": "PDE5A"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "GMNN", "label": "GMNN", "shape": "star", "title": "GMNN"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "SLC22A1", "label": "SLC22A1", "shape": "star", "title": "SLC22A1"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "EHMT2", "label": "EHMT2", "shape": "star", "title": "EHMT2"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "CBX1", "label": "CBX1", "shape": "star", "title": "CBX1"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "GNAS", "label": "GNAS", "shape": "star", "title": "GNAS"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "APEX1", "label": "APEX1", "shape": "star", "title": "APEX1"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "PTH1R", "label": "PTH1R", "shape": "star", "title": "PTH1R"}, {"color": "#A0AA9B", "font": {"color": "white"}, "id": "MBNL1", "label": "MBNL1", "shape": "star", "title": "MBNL1"}]);
+                  edges = new vis.DataSet([{"color": "#CDCDCD", "from": "acebutolol", "to": "acenocoumarol"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "ALB"}, {"color": "#CDCDCD", "from": "acenocoumarol", "to": "ALB"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "MAPK14"}, {"color": "#CDCDCD", "from": "MAPK14", "to": "ALB"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "KCNH2"}, {"color": "#CDCDCD", "from": "KCNH2", "to": "ALB"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "PRKCA"}, {"color": "#CDCDCD", "from": "PRKCA", "to": "ALB"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "EGFR"}, {"color": "#CDCDCD", "from": "EGFR", "to": "ALB"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "CYP2C19"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "CYP2C9"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "CYP2D6"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "CYP3A4"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "CYP1A2"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "ABCB1"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "AVPR1A"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "CYSLTR1"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "SIGMAR1"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "ESR2"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "PPP3CA"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "SLC6A3"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "CCR5"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "CCR4"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "HTR6"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "AGTR2"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "NPY2R"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "MC3R"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "CCR2"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "HTR2B"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "OPRK1"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "OPRD1"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "DRD3"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "OPRM1"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "HRH1"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "PTGS2"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "MC5R"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "MC4R"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "VIPR1"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "CCKAR"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "SLC6A4"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "CALCR"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "ADORA1"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "BDKRB2"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "CASP1"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "MAPK1"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "HTR2C"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "HTR2A"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "MAPK3"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "NPY1R"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "PTAFR"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "TACR1"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "EDNRA"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "ADRA1D"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "CXCR2"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "CXCR1"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "HRH2"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "TBXAS1"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "SLC6A2"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "PTGS1"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "ACHE"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "DRD4"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "DRD1"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "CNR1"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "TACR2"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "MAOA"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "CHRM3"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "ADRA2C"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "ADRA2B"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "FLT1"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "MMP9"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "DRD2"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "ADRB3"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "CYP2A6"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "CHRM1"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "ADORA3"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "ADRA2A"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "CHRM5"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "ADRB1"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "PTPRC"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "CTSG"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "ELANE"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "CHRM4"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "CHRM2"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "ADRB2"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "FYN"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "LCK"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "CYP2E1"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "ERBB2"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "NR3C1"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "HMGCR"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "MMP1"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "ESR1"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "CA2"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "PDE5A"}, {"color": "#CDCDCD", "from": "acenocoumarol", "to": "GMNN"}, {"color": "#CDCDCD", "from": "acebutolol", "to": "SLC22A1"}, {"color": "#CDCDCD", "from": "acenocoumarol", "to": "EHMT2"}, {"color": "#CDCDCD", "from": "acenocoumarol", "to": "CBX1"}, {"color": "#CDCDCD", "from": "acenocoumarol", "to": "GNAS"}, {"color": "#CDCDCD", "from": "acenocoumarol", "to": "APEX1"}, {"color": "#CDCDCD", "from": "acenocoumarol", "to": "PTH1R"}, {"color": "#CDCDCD", "from": "acenocoumarol", "to": "MBNL1"}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {
+    "configure": {
+        "enabled": false
+    },
+    "edges": {
+        "color": {
+            "inherit": true
+        },
+        "smooth": {
+            "enabled": true,
+            "type": "dynamic"
+        }
+    },
+    "interaction": {
+        "dragNodes": true,
+        "hideEdgesOnDrag": false,
+        "hideNodesOnDrag": false
+    },
+    "physics": {
+        "barnesHut": {
+            "avoidOverlap": 0,
+            "centralGravity": 0.3,
+            "damping": 0.09,
+            "gravitationalConstant": -80000,
+            "springConstant": 0.001,
+            "springLength": 250
+        },
+        "enabled": true,
+        "repulsion": {
+            "centralGravity": 0.33,
+            "damping": 0.95,
+            "nodeDistance": 270,
+            "springConstant": 0.1,
+            "springLength": 80
+        },
+        "solver": "repulsion",
+        "stabilization": {
+            "enabled": true,
+            "fit": true,
+            "iterations": 1000,
+            "onlyDynamicEdges": false,
+            "updateInterval": 50
+        }
+    }
+};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    </body>
+</html>

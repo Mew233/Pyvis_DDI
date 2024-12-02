@@ -2,13 +2,13 @@ import streamlit as st
 import streamlit.components.v1 as components
 import pandas as pd
 import networkx as nx
-from pyvis.network import Network
+# from pyvis.network import Network
 import numpy as np
 from utilitis import *
 
 # Read dataset (CSV)
 # df_interact = pd.read_csv('data/processed_drug_interactions.csv')
-@st.experimental_memo
+# @st.experimental_memo
 def load_data():
     single_drug_adr = pd.read_csv('data/Single_drug_adr.csv',index_col=0)
     ddi = pd.read_csv('data/drug_drug.csv',index_col=0)
@@ -30,19 +30,22 @@ single_drug_adr, ddi, dpi, ppi = load_data()
 
 
 # Set header title
-st.title('Network Graph Visualization of Drug-Drug Interactions')
-
+st.write('### DDI-GPT: Predicting DDIs using KG enhanced LLM')
+st.write('\n')
+st.write("###### \tDDI-GPT is a deep learning-based framework that predicts drug-drug interactions (DDIs) using a comprehensive \
+features from the curated knowledge graph.  This \
+browser encourages exploration of KGs and support the use of interpretable importance scores for predicted DDIs.\
+         Select drug to visualize, search by DrugName.")
 # Define list of selection options and sort alphabetically
 drug_list = list(np.unique(single_drug_adr['source'])) + list(set(dpi['drug_node_name'])-\
                                                                       set(single_drug_adr['source']).intersection(set(dpi['drug_node_name'])))
 # drug_list.sort()
-
 # Implement multiselect dropdown menu for option selection (returns a list)
-selected_drugs = st.multiselect('Select drug(s) to visualize', drug_list)
+selected_drugs = st.multiselect('', drug_list)
 
 # Set info message on initial site load
 if len(selected_drugs) == 0:
-    st.text('Choose at least 1 drug to start')
+    st.write('Choose at least 1 drug to start')
 
 # Create network graph when user selects >= 1 item
 else:
@@ -106,13 +109,13 @@ else:
     
     # Save and read graph as HTML file (on Streamlit Sharing)
     try:
-        path = '/tmp'
+        path = './tmp'
         got_net.save_graph(f'{path}/pyvis_graph.html')
         HtmlFile = open(f'{path}/pyvis_graph.html', 'r', encoding='utf-8')
 
     # Save and read graph as HTML file (locally)
     except:
-        path = '/html_files'
+        path = './html_files'
         got_net.save_graph(f'{path}/pyvis_graph.html')
         HtmlFile = open(f'{path}/pyvis_graph.html', 'r', encoding='utf-8')
 
@@ -121,15 +124,17 @@ else:
 
     # display all shortest path
     # Create networkx graph object from pandas dataframe
-    genre = st.radio("Meta path exploration (please select 2 drugs)",('Genes','Side effects',))
+    if len(selected_drugs) <=1:
+        st.write('You have 1 drug. Select 2 drugs to explore meta path')
+
+    genre = st.radio("",('Genes','Side effects',))
     genre_hop = st.radio("PPI: ",('shortest path', '2-hop'),horizontal=True)
 
-    agree = st.checkbox('Show PPI network',value=True)
-    
+    # agree = st.checkbox('Show PPI network',value=True)
+    #
 
     if len(selected_drugs) >= 2:
         if genre == 'Side effects':
-            # st.write('You selected comedy.')
             G = nx.from_pandas_edgelist(df_select, 'source', 'target', 'rel')
             paths = nx.all_shortest_paths(G, source=selected_drugs[0], target=selected_drugs[1])
         elif genre == 'Genes':
@@ -147,20 +152,30 @@ else:
         ps = [p for p in paths]
         ps = sorted(ps, key=len, reverse=True)
 
-        st.experimental_set_query_params(my_saved_result=ps)  # Save value
-        # Retrieve app state
-        app_state = st.experimental_get_query_params()  
+        # st.query_params.key = ps
+        # # st.query_params(my_saved_result=ps)  # Save value
+        # # Retrieve app state
+        # app_state = st.query_params.key
+
+        # if agree:
+        create_ggi(dpi_select, G,selected_drugs)
+
 
         try:
-            saved_result = app_state["my_saved_result"]
-            # print([p for p in saved_result])
-            # print(len(saved_result))
-            st.write(saved_result)
+            # st.write(ps)
+            s = ''
+            for i in ps:
+                j = ', '.join(i)
+                s += j + "\n"
+
+            text_contents = s
+            st.download_button("Download results", text_contents)
+
+            st.write(ps)
         except:
             raise ValueError('There is no 2-hop genes between selected drugs.')
 
-        if agree:
-            create_ggi(dpi_select, G,selected_drugs)
+
 
 
 # Footer

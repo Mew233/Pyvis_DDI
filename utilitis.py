@@ -89,13 +89,13 @@ def create_ggi(dpi_select, G,selected_drugs):
 
     # Save and read graph as HTML file (on Streamlit Sharing)
     try:
-        path = '/tmp'
+        path = './tmp'
         got_net_ggi.save_graph(f'{path}/pyvis_graph_ggi.html')
         HtmlFile = open(f'{path}/pyvis_graph_ggi.html', 'r', encoding='utf-8')
 
     # Save and read graph as HTML file (locally)
     except:
-        path = '/html_files'
+        path = './html_files'
         got_net_ggi.save_graph(f'{path}/pyvis_graph_ggi.html')
         HtmlFile = open(f'{path}/pyvis_graph_ggi.html', 'r', encoding='utf-8')
 
